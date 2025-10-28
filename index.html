@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Envelope E-Card Smooth</title>
+<style>
+  * { box-sizing: border-box; margin:0; padding:0; }
+  body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+  }
+
+  .container { position: relative; width:400px; height:400px; }
+
+  img {
+    position:absolute;
+    left:50%;
+    transform: translateX(-50%);
+    bottom:-100px;
+    width:300px;
+    pointer-events:none;
+    transition: opacity 0.4s ease;
+  }
+
+  /* Envelope states */
+  .envelope-closed { z-index:5; opacity:1; }
+  .envelope-open { z-index:6; opacity:0; }
+  .envelope-empty { z-index:5; opacity:0; }
+
+  /* Letter */
+  .letter { 
+    position:absolute;
+    bottom:269px;
+    width:250px; 
+    z-index:10;
+    opacity:0;
+    transform: translateX(-50%) translateY(180px) rotate(0deg);
+    transform-origin: bottom center;
+  }
+
+  /* OPEN sequence */
+  .opening .envelope-closed { opacity:0; }
+  .opening .envelope-open { opacity:1; }
+
+  .opened .envelope-open { opacity:1; } /* keeps open envelope visible while letter slides out */
+  .opened.finished .envelope-open { opacity:0; }
+  .opened.finished .envelope-empty { opacity:1; }
+
+  /* Letter slides out only after envelope-empty starts appearing */
+  .opened .letter { animation: slideAndTilt 1.6s ease-in-out forwards; }
+
+  @keyframes slideAndTilt {
+    0% { opacity:1; transform: translateX(-50%) translateY(180px) rotate(0deg); }
+    50% { transform: translateX(-50%) translateY(-10px) rotate(0deg); }
+    100% { transform: translateX(-50%) translateY(-40px) rotate(0deg) scale(1.05); opacity:1; }
+  }
+
+  /* Closing animation */
+  .closing .letter { animation: slideBack 1.3s ease-in-out forwards; }
+
+  @keyframes slideBack {
+    0% { transform: translateX(-50%) translateY(-40px) rotate(0deg) scale(1.05); opacity:1; }
+    50% { transform: translateX(-50%) translateY(-10px) rotate(0deg); }
+    100% { transform: translateX(-50%) translateY(180px) rotate(0deg); opacity:0; }
+  }
+
+  /* Envelope swap back to closed */
+  .closing.finished .envelope-empty { opacity:0; }
+  .closing.finished .envelope-closed { opacity:1; }
+
+  /* Buttons */
+  .controls {
+    position: absolute;
+    bottom:-170px;
+    left:50%;
+    transform: translateX(-50%);
+    z-index:50;
+  }
+  button {
+    padding:14px 36px;
+    font-size:16px;
+    font-weight:bold;
+    border-radius:40px;
+    border:2px solid black;
+    background:#2b975a;
+    color:white;
+    cursor:pointer;
+    box-shadow:0 5px 15px rgba(0,0,0,0.25);
+  }
+  button:hover { transform: translateY(-2px); }
+
+  .close-btn { display:none; }
+  .opened .open-btn { display:none; }
+  .opened .close-btn { display:inline-block; }
+</style>
+</head>
+<body>
+<div class="container" id="ecard">
+  <img src="/assets/envelope-closed.png" class="envelope-closed">
+  <img src="/assets/envelope-open.png" class="envelope-open">
+  <img src="/assets/envelope-empty.png" class="envelope-empty">
+  <img src="/assets/letter.png" class="letter">
+
+  <div class="controls">
+    <button class="open-btn" onclick="openCard()">OPEN</button>
+    <button class="close-btn" onclick="closeCard()">CLOSE</button>
+  </div>
+</div>
+
+<script>
+const ecard = document.getElementById('ecard');
+
+function openCard() {
+  ecard.classList.remove('closing','finished');
+  ecard.classList.add('opening');
+
+  // 1.envelope-open appears
+  setTimeout(()=>{
+    ecard.classList.remove('opening');
+    ecard.classList.add('opened');
+  }, 800);
+
+  // 2.start fading envelope-open -> envelope-empty after a slight overlap
+  setTimeout(()=>{
+    ecard.classList.add('finished'); // triggers letter slide & swap envelope
+  }, 1000); // small overlap makes it smooth
+}
+
+function closeCard(){
+  ecard.classList.remove('opened','finished');
+  ecard.classList.add('closing');
+
+  setTimeout(()=>{
+    ecard.classList.add('finished'); // swap envelope-empty -> closed after letter slides back
+  }, 1300);
+  setTimeout(()=>{
+    ecard.classList.remove('closing','finished');
+  }, 1400);
+}
+</script>
+</body>
+</html>
