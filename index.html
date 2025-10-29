@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Christmas e-card</title>
+<title>Christmas E-card</title>
 <style>
   * { box-sizing: border-box; margin:0; padding:0; }
   body {
@@ -14,9 +14,7 @@
     justify-content:center;
     align-items:center;
   }
-
   .container { position: relative; width:400px; height:400px; }
-
   img {
     position:absolute;
     left:50%;
@@ -26,59 +24,35 @@
     pointer-events:none;
     transition: opacity 0.4s ease;
   }
-
-  /* Envelope states */
   .envelope-closed { z-index:5; opacity:1; }
   .envelope-open { z-index:6; opacity:0; }
   .envelope-empty { z-index:5; opacity:0; }
-
-  /* Letter */
   .letter { 
     position:absolute;
     bottom:269px;
     width:250px; 
     z-index:10;
     opacity:0;
-    transform: translateX(-50%) translateY(180px) rotate(0deg);
+    transform: translateX(-50%) translateY(180px);
     transform-origin: bottom center;
   }
-
-  /* OPEN sequence */
   .opening .envelope-closed { opacity:0; }
   .opening .envelope-open { opacity:1; }
-
-  .opened .envelope-open { opacity:1; } /* keeps open envelope visible while letter slides out */
+  .opened .envelope-open { opacity:1; } 
   .opened.finished .envelope-open { opacity:0; }
   .opened.finished .envelope-empty { opacity:1; }
-
-  /* Letter slides out only after envelope-empty starts appearing */
-  .opened .letter { 
-  animation: slideAndUp 1.6s ease-in-out forwards; 
-}
-
+  .opened .letter { animation: slideAndUp 1.6s ease-in-out forwards; }
   @keyframes slideAndUp {
-  0% { opacity:1; transform: translateX(-50%) translateY(180px); }
-  100% { transform: translateX(-50%) translateY(50px) scale(1.05); opacity:1; } /* final resting point */
-}
-
-
-
-  /* Closing animation */
-  .closing .letter { 
-  animation: slideBackDown 1.3s ease-in-out forwards; 
-}
-
+    0% { opacity:1; transform: translateX(-50%) translateY(180px); }
+    100% { transform: translateX(-50%) translateY(50px) scale(1.05); opacity:1; }
+  }
+  .closing .letter { animation: slideBackDown 1.3s ease-in-out forwards; }
   @keyframes slideBackDown {
-  0% { transform: translateX(-50%) translateY(50px) scale(1.05); opacity:1; }
-  100% { transform: translateX(-50%) translateY(180px); opacity:0; }
-}
-
-
-  /* Envelope swap back to closed */
+    0% { transform: translateX(-50%) translateY(50px) scale(1.05); opacity:1; }
+    100% { transform: translateX(-50%) translateY(180px); opacity:0; }
+  }
   .closing.finished .envelope-empty { opacity:0; }
   .closing.finished .envelope-closed { opacity:1; }
-
-  /* Buttons */
   .controls {
     position: absolute;
     bottom:-170px;
@@ -98,7 +72,6 @@
     box-shadow:0 5px 15px rgba(0,0,0,0.25);
   }
   button:hover { transform: translateY(-2px); }
-
   .close-btn { display:none; }
   .opened .open-btn { display:none; }
   .opened .close-btn { display:inline-block; }
@@ -106,7 +79,12 @@
 </head>
 <body>
 <div class="container" id="ecard">
-  <audio id="ecard-song" src="assets/song.mp3"></audio>
+  <!-- Audio element -->
+  <audio id="ecard-song" preload="auto">
+    <source src="assets/song.m4a" type="audio/mpeg">
+    <source src="assets/song.mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
+  </audio>
 
   <img src="assets/envelope-closed.png" class="envelope-closed">
   <img src="assets/envelope-open.png" class="envelope-open">
@@ -114,46 +92,50 @@
   <img src="assets/letter.png" class="letter">
 
   <div class="controls">
-    <button class="open-btn" onclick="openCard()">OPEN</button>
-    <button class="close-btn" onclick="closeCard()">CLOSE</button>
+    <button class="open-btn" id="openBtn">OPEN</button>
+    <button class="close-btn" id="closeBtn">CLOSE</button>
   </div>
 </div>
 
 <script>
 const ecard = document.getElementById('ecard');
+const song = document.getElementById('ecard-song');
+const openBtn = document.getElementById('openBtn');
+const closeBtn = document.getElementById('closeBtn');
 
-function openCard() {
-  const song = document.getElementById('ecard-song');
-  song.play(); // start playing the song
+openBtn.addEventListener('click', () => {
+  // Direct user interaction ensures Safari will play
+  song.currentTime = 0;
+  song.play().catch(e => console.log("Audio blocked:", e));
+
   ecard.classList.remove('closing','finished');
   ecard.classList.add('opening');
 
-  // 1.envelope-open appears
   setTimeout(()=>{
     ecard.classList.remove('opening');
     ecard.classList.add('opened');
   }, 800);
 
-  // 2.start fading envelope-open -> envelope-empty after a slight overlap
   setTimeout(()=>{
-    ecard.classList.add('finished'); // triggers letter slide & swap envelope
-  }, 1000); // small overlap makes it smooth
-}
+    ecard.classList.add('finished');
+  }, 1000);
+});
 
-function closeCard(){
-  const song = document.getElementById('ecard-song');
+closeBtn.addEventListener('click', () => {
   song.pause();
-  song.currentTime = 0; // reset to start
+  song.currentTime = 0;
+
   ecard.classList.remove('opened','finished');
   ecard.classList.add('closing');
 
   setTimeout(()=>{
-    ecard.classList.add('finished'); // swap envelope-empty -> closed after letter slides back
+    ecard.classList.add('finished');
   }, 1300);
+
   setTimeout(()=>{
     ecard.classList.remove('closing','finished');
   }, 1400);
-}
+});
 </script>
 </body>
 </html>
