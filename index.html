@@ -52,22 +52,27 @@
   .opened.finished .envelope-empty { opacity:1; }
 
   /* Letter slides out only after envelope-empty starts appearing */
-  .opened .letter { animation: slideAndTilt 1.6s ease-in-out forwards; }
+  .opened .letter { 
+  animation: slideAndUp 1.6s ease-in-out forwards; 
+}
 
-  @keyframes slideAndTilt {
-    0% { opacity:1; transform: translateX(-50%) translateY(180px) rotate(0deg); }
-    50% { transform: translateX(-50%) translateY(-10px) rotate(0deg); }
-    100% { transform: translateX(-50%) translateY(-40px) rotate(0deg) scale(1.05); opacity:1; }
-  }
+  @keyframes slideAndUp {
+  0% { opacity:1; transform: translateX(-50%) translateY(180px); }
+  100% { transform: translateX(-50%) translateY(50px) scale(1.05); opacity:1; } /* final resting point */
+}
+
+
 
   /* Closing animation */
-  .closing .letter { animation: slideBack 1.3s ease-in-out forwards; }
+  .closing .letter { 
+  animation: slideBackDown 1.3s ease-in-out forwards; 
+}
 
-  @keyframes slideBack {
-    0% { transform: translateX(-50%) translateY(-40px) rotate(0deg) scale(1.05); opacity:1; }
-    50% { transform: translateX(-50%) translateY(-10px) rotate(0deg); }
-    100% { transform: translateX(-50%) translateY(180px) rotate(0deg); opacity:0; }
-  }
+  @keyframes slideBackDown {
+  0% { transform: translateX(-50%) translateY(50px) scale(1.05); opacity:1; }
+  100% { transform: translateX(-50%) translateY(180px); opacity:0; }
+}
+
 
   /* Envelope swap back to closed */
   .closing.finished .envelope-empty { opacity:0; }
@@ -101,6 +106,8 @@
 </head>
 <body>
 <div class="container" id="ecard">
+  <audio id="ecard-song" src="assets/song.mp3"></audio>
+
   <img src="assets/envelope-closed.png" class="envelope-closed">
   <img src="assets/envelope-open.png" class="envelope-open">
   <img src="assets/envelope-empty.png" class="envelope-empty">
@@ -116,6 +123,8 @@
 const ecard = document.getElementById('ecard');
 
 function openCard() {
+  const song = document.getElementById('ecard-song');
+  song.play(); // start playing the song
   ecard.classList.remove('closing','finished');
   ecard.classList.add('opening');
 
@@ -132,6 +141,9 @@ function openCard() {
 }
 
 function closeCard(){
+  const song = document.getElementById('ecard-song');
+  song.pause();
+  song.currentTime = 0; // reset to start
   ecard.classList.remove('opened','finished');
   ecard.classList.add('closing');
 
